@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import numpy as np
+from scipy import ndimage
 
 # TODO: modulize the pipeline
 # run.py - excutive entry
@@ -41,7 +42,9 @@ for i in range(3):
 # fa=1381.8; fb =  1387.8
 freq = raw_input("enter freqency range (separated by a comma):").split(',')
 tick_num = raw_input("Please enter tick number [1001]:") or 1001
-
+smooth_box = raw_input('Please type the smoothing width of the boxcar \
+                        average: [10]') or 10
+                        
 # ===============calculations======================#
 
 
@@ -103,7 +106,7 @@ def plot_on_off(on, off, freq, mode):
     # plt.show()
     return on_off
 
-# ===============first on off plot======================#
+# =============== first session on off plot======================#
 
 
 first_on = mean_onoff(os.path.join(obj_path, 'first-on'))
@@ -111,7 +114,7 @@ first_off = mean_onoff(os.path.join(obj_path, 'first-off'))
 freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
 first_on_off = plot_on_off(first_on, first_off, freq, 'first')
 
-# ===============second on off plot======================#
+# ===============second session on off plot======================#
 
 second_on = mean_onoff(os.path.join(obj_path, 'second-on'))
 second_off = mean_onoff(os.path.join(obj_path, 'second-off'))
@@ -119,13 +122,17 @@ freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
 second_on_off = plot_on_off(second_on, second_off, freq, 'second')
 
 
-# =============first second mean calculation and plot====================#
+# ============= plot ON-OFF data ====================#
 first_second_mean = (first_on_off + second_on_off)/2.
+
 print(np.min(first_second_mean), np.argmin(first_second_mean))
 print('signal at '+str(1354.3+np.argmin(first_second_mean)/1000.)+' MHz')
 
-plt.plot(freq, first_second_mean)
+# smooth function is from IDL http://www.harrisgeospatial.com/docs/SMOOTH.html
+first_second_mean = ndimage.filters.uniform_filter(first_second_mean,
+                                                   size=int(smooth_box))
 
+plt.plot(freq, first_second_mean)
 plt.annotate('Signal at '+str(1354.3+np.argmin(first_second_mean)/1000.*6)
              + ' MHz',
              xy=(1357.3, 1e-12),
