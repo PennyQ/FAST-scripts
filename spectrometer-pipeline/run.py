@@ -5,6 +5,12 @@ import sys
 import numpy as np
 from scipy import ndimage
 
+# TODO: test bandpass and polish the code
+
+# TODO: add baseline
+
+# TODO: rephrase the comments
+
 # TODO: modulize the pipeline
 # run.py - excutive entry
 # calculation.py - all scientific calculations
@@ -15,12 +21,6 @@ from scipy import ndimage
 
 # TODO: In the future, when deal with stacks of data, we should enable \
 # output plots in the data folder
-
-# TODO: test bandpass
-
-# TODO: add baseline
-
-# TODO: rephrase the comments
 
 # =============User input initiation================#
 cwd = os.getcwd()
@@ -43,9 +43,11 @@ for i in range(3):
 
 # fa=1381.8; fb =  1387.8
 freq = raw_input("enter freqency range (separated by a comma):").split(',')
-freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
 
 tick_num = raw_input("Please enter tick number [1001]:") or 1001
+
+freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
+
 smooth_box = raw_input('Please type the smoothing width of the boxcar \
                         average: [10]') or 10
 
@@ -54,47 +56,44 @@ smooth_box = raw_input('Please type the smoothing width of the boxcar \
 
 def bandpass_correction(data, freq):
     # for each spectra in data
-    data_on1_bdp = None
+    data_after_bdp = None
 
     # iterate data with each spectra
     for spectra in np.nditer(data, flags=['external_loop'], order='F'):
-        mask_on1 = range(spectra.shape[0])
+        good_data_index = range(spectra.shape[0])
         # calculate 3 times for bandpass fitting and subtraction
         for k in range(3):
-            #  select good data only with mask_on1 indexing
-            freq_sel = freq[mask_on1]
-            data_sel = spectra[mask_on1]
+            #  select good data only with good_data_index indexing
+            freq_sel = freq[good_data_index]
+            data_sel = spectra[good_data_index]
 
             # bdp curve fitting
-            p30 = np.poly1d(np.polyfit(freq_sel, data_sel, 1))  # x, y, degree
-            # print('bdp_curv_on1', bdp_curv_on1.shape)
-            bdp_curv_on1 = p30(freq)
-            # else:
-            #     bdp_curv_on1 = np.append(bdp_curv_on1, p30(freq))
+            polyfit = np.poly1d(np.polyfit(freq_sel, data_sel, 1))  # x, y, degree
+            bdp_curv = polyfit(freq)
 
             # calculate residual and corresponding rms
-            res_on1 = abs(spectra) - p30(freq)
-            rms_on1 = np.std(res_on1)
+            res_signal = abs(spectra) - polyfit(freq)
+            rms = np.std(res_signal)
 
             # get index for good data
-            mask_on1 = np.where(res_on1 <= 3.*rms_on1)
+            good_data_index = np.where(res_signal <= 3.*rms)
 
         try:
-            bdp_curv_on1 = bdp_curv_on1/np.median(bdp_curv_on1)  # normalization
+            bdp_curv = bdp_curv/np.median(bdp_curv)  # normalization
         except ZeroDivisionError:
-            bdp_curv_on1 = bdp_curv_on1
-        nor_bdp = spectra/bdp_curv_on1
-        print('spectra/bdp_curv_on1', nor_bdp.shape)
+            bdp_curv = bdp_curv
+        nor_bdp = spectra/bdp_curv
+        print('spectra/bdp_curv', nor_bdp.shape)
         nor_bdp = nor_bdp.reshape(nor_bdp.shape[0], 1)
-        print('spectra/bdp_curv_on1 - new', nor_bdp.shape)
+        print('spectra/bdp_curv - new', nor_bdp.shape)
 
-        if data_on1_bdp is None:
-            data_on1_bdp = nor_bdp
+        if data_after_bdp is None:
+            data_after_bdp = nor_bdp
         else:
-            data_on1_bdp = np.append(data_on1_bdp, nor_bdp, axis=1)  # bdp correction
-            print('data_on1_bdp', data_on1_bdp.shape)
-            print('spectra/bdp_curv_on1', (spectra/bdp_curv_on1).shape)
-    return data_on1_bdp
+            data_after_bdp = np.append(data_after_bdp, nor_bdp, axis=1)  # bdp correction
+            print('data_after_bdp', data_after_bdp.shape)
+            print('spectra/bdp_curv', (spectra/bdp_curv).shape)
+    return data_after_bdp
 
 
 def read_data(path, data=None):
