@@ -16,11 +16,13 @@ from scipy import ndimage
 # TODO: In the future, when deal with stacks of data, we should enable \
 # output plots in the data folder
 
-# TODO: add bandpass
+# TODO: test bandpass
 
 # TODO: add baseline
 
-# =============Get user input================#
+# TODO: rephrase the comments
+
+# =============User input initiation================#
 cwd = os.getcwd()
 dirname = os.path.dirname(cwd)
 obj_name = str(raw_input('Please type the folder name: '))
@@ -41,14 +43,61 @@ for i in range(3):
 
 # fa=1381.8; fb =  1387.8
 freq = raw_input("enter freqency range (separated by a comma):").split(',')
+freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
+
 tick_num = raw_input("Please enter tick number [1001]:") or 1001
 smooth_box = raw_input('Please type the smoothing width of the boxcar \
                         average: [10]') or 10
-                        
+
 # ===============calculations======================#
 
 
-def mean_onoff(path, data=None):
+def bandpass_correction(data, freq):
+    # for each spectra in data
+    data_on1_bdp = None
+
+    # iterate data with each spectra
+    for spectra in np.nditer(data, flags=['external_loop'], order='F'):
+        mask_on1 = range(spectra.shape[0])
+        # calculate 3 times for bandpass fitting and subtraction
+        for k in range(3):
+            #  select good data only with mask_on1 indexing
+            freq_sel = freq[mask_on1]
+            data_sel = spectra[mask_on1]
+
+            # bdp curve fitting
+            p30 = np.poly1d(np.polyfit(freq_sel, data_sel, 1))  # x, y, degree
+            # print('bdp_curv_on1', bdp_curv_on1.shape)
+            bdp_curv_on1 = p30(freq)
+            # else:
+            #     bdp_curv_on1 = np.append(bdp_curv_on1, p30(freq))
+
+            # calculate residual and corresponding rms
+            res_on1 = abs(spectra) - p30(freq)
+            rms_on1 = np.std(res_on1)
+
+            # get index for good data
+            mask_on1 = np.where(res_on1 <= 3.*rms_on1)
+
+        try:
+            bdp_curv_on1 = bdp_curv_on1/np.median(bdp_curv_on1)  # normalization
+        except ZeroDivisionError:
+            bdp_curv_on1 = bdp_curv_on1
+        nor_bdp = spectra/bdp_curv_on1
+        print('spectra/bdp_curv_on1', nor_bdp.shape)
+        nor_bdp = nor_bdp.reshape(nor_bdp.shape[0], 1)
+        print('spectra/bdp_curv_on1 - new', nor_bdp.shape)
+
+        if data_on1_bdp is None:
+            data_on1_bdp = nor_bdp
+        else:
+            data_on1_bdp = np.append(data_on1_bdp, nor_bdp, axis=1)  # bdp correction
+            print('data_on1_bdp', data_on1_bdp.shape)
+            print('spectra/bdp_curv_on1', (spectra/bdp_curv_on1).shape)
+    return data_on1_bdp
+
+
+def read_data(path, data=None):
     try:
         for dir_entry in os.listdir(path):
             dir_entry_path = os.path.join(path, dir_entry)
@@ -60,14 +109,11 @@ def mean_onoff(path, data=None):
                     data = data_linear
                 else:
                     data = np.append(data, data_linear, axis=1)
-        print('data shape', data.shape)
-        data_mean = np.mean(data, axis=1)
-        print('data_mean shape', data_mean.shape)
     except OSError:
         # If the folder path is wrong after three trials
         print("Invalid folder input, please check the folder existance.")
         sys.exit()
-    return data_mean  # as a numpy array
+    return data  # as a numpy array
 
 
 def plot_on_off(on, off, freq, mode):
@@ -108,17 +154,22 @@ def plot_on_off(on, off, freq, mode):
 
 # =============== first session on off plot======================#
 
+first_on_data = read_data(os.path.join(obj_path, 'first-on'))
+first_off_data = read_data(os.path.join(obj_path, 'first-off'))
 
-first_on = mean_onoff(os.path.join(obj_path, 'first-on'))
-first_off = mean_onoff(os.path.join(obj_path, 'first-off'))
-freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
+first_on = np.mean(bandpass_correction(first_on_data, freq), axis=1)
+first_off = np.mean(bandpass_correction(first_off_data, freq), axis=1)
+
 first_on_off = plot_on_off(first_on, first_off, freq, 'first')
 
 # ===============second session on off plot======================#
 
-second_on = mean_onoff(os.path.join(obj_path, 'second-on'))
-second_off = mean_onoff(os.path.join(obj_path, 'second-off'))
-freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
+second_on_data = read_data(os.path.join(obj_path, 'second-on'))
+second_off_data = read_data(os.path.join(obj_path, 'second-off'))
+
+second_on = np.mean(bandpass_correction(second_on_data, freq), axis=1)
+second_off = np.mean(bandpass_correction(second_off_data, freq), axis=1)
+
 second_on_off = plot_on_off(second_on, second_off, freq, 'second')
 
 
