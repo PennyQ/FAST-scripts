@@ -55,13 +55,13 @@ smooth_box = raw_input('Please type the smoothing width of the boxcar \
 
 
 def bandpass_correction(data, freq):
-    # for each spectra in data
     data_after_bdp = None
 
     # iterate data with each spectra
     for spectra in np.nditer(data, flags=['external_loop'], order='F'):
         good_data_index = range(spectra.shape[0])
-        # calculate 3 times for bandpass fitting and subtraction
+
+        # calculate 3 times for bandpass fitting and data filterring
         for k in range(3):
             #  select good data only with good_data_index indexing
             freq_sel = freq[good_data_index]
@@ -83,8 +83,7 @@ def bandpass_correction(data, freq):
         except ZeroDivisionError:
             bdp_curv = bdp_curv
         nor_bdp = spectra/bdp_curv
-        print('spectra/bdp_curv', nor_bdp.shape)
-        nor_bdp = nor_bdp.reshape(nor_bdp.shape[0], 1)
+        nor_bdp = nor_bdp.reshape(nor_bdp.shape[0], 1)  # reshape for appending
         print('spectra/bdp_curv - new', nor_bdp.shape)
 
         if data_after_bdp is None:
