@@ -74,6 +74,37 @@ def read_data(path, data=None):
     return data  # as a numpy array
 
 
+def seperate_on_off_files(path):
+    try:
+        if os.path.isfile(os.path.join(path, 'time.txt')):
+            t_array = []
+            for each_line in open('../test_data/AGC12885/time.txt').read().decode('utf-8').split( ):
+                if each_line[0].isdigit() or each_line[0] == '-':
+                    print(each_line.encode('utf-8'))
+                    t_array.append(each_line.encode('utf-8'))
+            on_start = []  # for each session
+            on_end = []
+            off_start = []
+            off_end = []
+            for i in range(len(t_array)):
+                if i % 4 == 0:
+                    on_start.append(t_array[i])
+                if i % 4 == 1:
+                    on_end.append(t_array[i])
+                if i % 4 == 2:
+                    off_start.append(t_array[i])
+                if i % 4 == 3:
+                    off_end.append(t_array[i])
+            print('on_start', on_start)
+            print('on_end', on_end)
+            print('off_start', off_start)
+            print('off_end', off_end)
+    except OSError:
+        print('File that saves on/off recoding time is not found,
+              please check!')
+        sys.exit()
+
+
 # # plot bdp corrected, baselined for each session
 def plot_each_session(on, off, freq, mode, bsl_flag=True):
     # initiate the plot
