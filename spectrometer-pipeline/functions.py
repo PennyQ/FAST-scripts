@@ -103,6 +103,10 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     # ax1.ylabel('first on minus off')
 
     f.subplots_adjust(hspace=1)
+
+    # plt.xlim(1381.8, 1387.8)
+    # axes.set_ylim([ymin,ymax])
+    # plt.ylim(4.5, 6)
     plt.savefig(mode+'-on-off')
     plt.show()
     # hdulist = fits.open('data_20171103T215857.fits')

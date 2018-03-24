@@ -15,8 +15,13 @@ from functions import *
 # calculation.py - all scientific calculations
 # plot.py - plotting codes
 
+<<<<<<< HEAD
 # TODO: automatically seperate first/second on off files;
 # should not have intermediate folders to store
+=======
+# TODO: In the future, add functionality to automatically seperate \
+# first/second on off files; should not have intermediate folders to store
+>>>>>>> a75fbd94ea39ce1787d8b187b2f3caff7086e998
 
 # TODO: In the future, when deal with stacks of data, we should enable \
 # output plots in the data folder
@@ -42,8 +47,13 @@ tick_num = raw_input("Please enter tick number [1001]:") or 1001
 
 freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
 
+<<<<<<< HEAD
 smooth_box = raw_input('Please type the smoothing width of the boxcar' +
                        'average: [10]') or 10
+=======
+smooth_box = raw_input('Please type the smoothing width of the boxcar \
+                        average: [10]') or 10
+>>>>>>> a75fbd94ea39ce1787d8b187b2f3caff7086e998
 
 bsl_flag = True
 if raw_input('Baselining the result? [y/n] default as yes').lower() == 'n':
@@ -78,5 +88,8 @@ sessions_mean = (first_on_off + second_on_off)/2.
 # print('signal at '+str(1354.3+np.argmin(first_second_mean)/1000.)+' MHz')
 
 plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag)
+<<<<<<< HEAD
 
 print('Pipeline quit!')
+=======
+>>>>>>> a75fbd94ea39ce1787d8b187b2f3caff7086e998
