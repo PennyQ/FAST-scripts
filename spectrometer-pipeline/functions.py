@@ -36,14 +36,14 @@ def bdp_correction(data, freq):
             bdp_curv = bdp_curv
         nor_bdp = spectra/bdp_curv
         nor_bdp = nor_bdp.reshape(nor_bdp.shape[0], 1)  # reshape for appending
-        print('spectra/bdp_curv - new', nor_bdp.shape)
+        # print('spectra/bdp_curv - new', nor_bdp.shape)
 
         if data_after_bdp is None:
             data_after_bdp = nor_bdp
         else:
             data_after_bdp = np.append(data_after_bdp, nor_bdp, axis=1)  # bdp correction
-            print('data_after_bdp', data_after_bdp.shape)
-            print('spectra/bdp_curv', (spectra/bdp_curv).shape)
+            # print('data_after_bdp', data_after_bdp.shape)
+            # print('spectra/bdp_curv', (spectra/bdp_curv).shape)
     return data_after_bdp
 
 
@@ -66,6 +66,7 @@ def read_data(path, data=None):
                     data = data_linear
                 else:
                     data = np.append(data, data_linear, axis=1)
+                hdulist.close()
     except OSError:
         # If the folder path is wrong after three trials
         print("Invalid folder input, please check the folder existance.")
@@ -102,16 +103,13 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     # ax1.ylabel('first on minus off')
 
     f.subplots_adjust(hspace=1)
-
-    # plt.xlim(1381.8, 1387.8)
-    # axes.set_ylim([ymin,ymax])
-    # plt.ylim(4.5, 6)
     plt.savefig(mode+'-on-off')
     plt.show()
     # hdulist = fits.open('data_20171103T215857.fits')
 
     # plt.plot(hdulist[0].data)
     # plt.show()
+    print('Plot and save ' + mode+' on minus off')
     return on_off
 
 
@@ -129,6 +127,7 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True):
                  xy=(freq[0], 1e-12),
                  xytext=(freq[1], 1e-12),
                  arrowprops=dict(arrowstyle="->"))
+    print('Plot and save ON-OFF (Baselined)')
 
     plt.title('ON-OFF (Baselined)')
     plt.savefig('bdp-smoothed-bsl')
