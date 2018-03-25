@@ -4,6 +4,7 @@ import os
 import sys
 import numpy as np
 from scipy import ndimage
+from datetime import datetime
 
 
 def bdp_correction(data, freq):
@@ -74,11 +75,11 @@ def read_data(path, data=None):
     return data  # as a numpy array
 
 
-def seperate_on_off_files(path):
+def read_time_txt(path='../test_data/AGC12885/'):
     try:
         if os.path.isfile(os.path.join(path, 'time.txt')):
             t_array = []
-            for each_line in open('../test_data/AGC12885/time.txt').read().decode('utf-8').split( ):
+            for each_line in open(os.path.join(path, 'time.txt')).read().decode('utf-8').split():
                 if each_line[0].isdigit() or each_line[0] == '-':
                     print(each_line.encode('utf-8'))
                     t_array.append(each_line.encode('utf-8'))
@@ -88,21 +89,55 @@ def seperate_on_off_files(path):
             off_end = []
             for i in range(len(t_array)):
                 if i % 4 == 0:
-                    on_start.append(t_array[i])
+                    on_start.append(datetime.strptime(t_array[i], '%H:%M'))
                 if i % 4 == 1:
-                    on_end.append(t_array[i])
+                    on_end.append(datetime.strptime(t_array[i].replace('-', ''), '%H:%M'))
                 if i % 4 == 2:
-                    off_start.append(t_array[i])
+                    off_start.append(datetime.strptime(t_array[i], '%H:%M'))
                 if i % 4 == 3:
-                    off_end.append(t_array[i])
+                    off_end.append(datetime.strptime(t_array[i].replace('-', ''), '%H:%M'))
             print('on_start', on_start)
             print('on_end', on_end)
             print('off_start', off_start)
             print('off_end', off_end)
     except OSError:
-        print('File that saves on/off recoding time is not found,
-              please check!')
+        print('File that saves on/off recoding time is not found,'
+              'please check!')
         sys.exit()
+    return on_start, on_end, off_start, off_end
+
+
+def read_on_off_data_by_time(time_info, path='test_data/AGC12885/'):
+    on_start, on_end, off_start, off_end = time_info
+    # read files from the data folder between start - end to an array
+    on_data = None
+    off_data = None
+    ses = 1  # TODO: considere multiple session cases, add one loop for session
+    for dir_entry in os.listdir('../'+path):
+        dir_entry_path = os.path.join(os.path.dirname(os.getcwd()), path,
+                                      dir_entry)
+        if os.path.isfile(dir_entry_path) and 'fit' in dir_entry_path:
+            hdulist = fits.open(dir_entry_path)
+            # unit of dB tranfering a into linear space
+            data_linear = np.power(10.0, hdulist[0].data/10.0)
+            f_time = dir_entry.split('T')[1]  # time in file name
+            f_time = f_time.split('.')[0]
+
+            # format time to python datetime format
+            f_time = datetime.strptime(f_time[0:4], '%H%M')
+            if f_time >= on_start[ses-1] and f_time <= on_end[ses-1]:
+                if on_data is None:
+                    on_data = data_linear
+                else:
+                    on_data = np.append(on_data, data_linear, axis=1)
+
+            if f_time >= off_start[ses-1] and f_time <= off_end[ses-1]:
+                if off_data is None:
+                    off_data = data_linear
+                else:
+                    off_data = np.append(off_data, data_linear, axis=1)
+            hdulist.close()
+    return on_data, off_data
 
 
 # # plot bdp corrected, baselined for each session
@@ -138,7 +173,7 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     # plt.xlim(1381.8, 1387.8)
     # axes.set_ylim([ymin,ymax])
     # plt.ylim(4.5, 6)
-    plt.savefig(mode+'-on-off')
+    plt.savefig(mode+'-on-off', dpi=300)
     plt.show()
     # hdulist = fits.open('data_20171103T215857.fits')
 
@@ -165,5 +200,5 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True):
     print('Plot and save ON-OFF (Baselined)')
 
     plt.title('ON-OFF (Baselined)')
-    plt.savefig('bdp-smoothed-bsl')
+    plt.savefig('bdp-smoothed-bsl', dpi=300)
     plt.show()

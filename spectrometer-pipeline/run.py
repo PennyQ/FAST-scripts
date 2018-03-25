@@ -42,42 +42,51 @@ freq = raw_input("enter freqency range (separated by a comma):").split(',')
 
 tick_num = raw_input("Please enter tick number [1001]:") or 1001
 
-freq = np.linspace(float(freq[0]), float(freq[1]), tick_num)
-
 smooth_box = raw_input('Please type the smoothing width of the boxcar' +
                        'average: [10]') or 10
 bsl_flag = True
 if raw_input('Baselining the result? [y/n] default as yes').lower() == 'n':
     bsl_flag = False
 
-# =============== first session on off plot======================#
+time_info = read_time_txt()
+on_data, off_data = read_on_off_data_by_time(time_info)
 
-first_on_data = read_data(os.path.join(obj_path, 'first-on'))
-first_off_data = read_data(os.path.join(obj_path, 'first-off'))
+freq = np.linspace(float(freq[0]), float(freq[1]), on_data.shape[0])
 
-first_on = np.mean(bdp_correction(first_on_data, freq), axis=1)
-first_off = np.mean(bdp_correction(first_off_data, freq), axis=1)
+print('on_data', on_data, on_data.shape)
+print('off_data', off_data, off_data.shape)
+on_data = np.mean(bdp_correction(on_data, freq), axis=1)
+off_data = np.mean(bdp_correction(off_data, freq), axis=1)
+on_off = plot_each_session(on_data, off_data, freq, 'AGC12885', bsl_flag)
 
-first_on_off = plot_each_session(first_on, first_off, freq, 'first', bsl_flag)
+# # =============== first session on off plot======================#
+#
+# first_on_data = read_data(os.path.join(obj_path, 'first-on'))
+# first_off_data = read_data(os.path.join(obj_path, 'first-off'))
+#
+# first_on = np.mean(bdp_correction(first_on_data, freq), axis=1)
+# first_off = np.mean(bdp_correction(first_off_data, freq), axis=1)
+#
 
-# ===============second session on off plot======================#
-
-second_on_data = read_data(os.path.join(obj_path, 'second-on'))
-second_off_data = read_data(os.path.join(obj_path, 'second-off'))
-
-second_on = np.mean(bdp_correction(second_on_data, freq), axis=1)
-second_off = np.mean(bdp_correction(second_off_data, freq), axis=1)
-
-second_on_off = plot_each_session(second_on, second_off, freq, 'second',
-                                  bsl_flag)
-
-
-# ============= plot ON-OFF data ====================#
-sessions_mean = (first_on_off + second_on_off)/2.
-
-# print(np.min(first_second_mean), np.argmin(first_second_mean))
-# print('signal at '+str(1354.3+np.argmin(first_second_mean)/1000.)+' MHz')
-
-plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag)
+#
+# # ===============second session on off plot======================#
+#
+# second_on_data = read_data(os.path.join(obj_path, 'second-on'))
+# second_off_data = read_data(os.path.join(obj_path, 'second-off'))
+#
+# second_on = np.mean(bdp_correction(second_on_data, freq), axis=1)
+# second_off = np.mean(bdp_correction(second_off_data, freq), axis=1)
+#
+# second_on_off = plot_each_session(second_on, second_off, freq, 'second',
+#                                   bsl_flag)
+#
+#
+# # ============= plot ON-OFF data ====================#
+# sessions_mean = (first_on_off + second_on_off)/2.
+#
+# # print(np.min(first_second_mean), np.argmin(first_second_mean))
+# # print('signal at '+str(1354.3+np.argmin(first_second_mean)/1000.)+' MHz')
+#
+# plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag)
 
 print('Pipeline quit!')
