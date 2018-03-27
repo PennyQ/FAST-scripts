@@ -131,7 +131,7 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True):
                  xy=(freq[0], 1e-12),
                  xytext=(freq[1], 1e-12),
                  arrowprops=dict(arrowstyle="->"))
-    print('Plot and save ON-OFF (Baselined)')
+    print('Plot and save ON-OFF (Baselined and Smoothed)')
 
     plt.title('ON-OFF (Baselined)')
     plt.savefig('bdp-smoothed-bsl')
