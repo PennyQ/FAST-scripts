@@ -27,15 +27,15 @@ from functions import *
 # =============User input initiation================#
 # Choose observation modulize
 try:
-    obs_mode = int(raw_input('Please choose your observation mode \n
-                             [1 - Drifting 2 - Tracking]'))
+    obs_mode = int(raw_input('Please choose your observation mode \n' +
+                             '[1 - Drifting 2 - Tracking]'))
 except:
     print('Selection out of options range! Please choose 1 or 2.')
 
 # TODO: depends on the mode chosen, entry to different obs mode
 
-instrument = int(raw_input('Please choose your instrument option \n
-                           [1 - Spectrometer 2 - Crane]'))
+instrument = int(raw_input('Please choose your instrument option \n' +
+                           '[1 - Spectrometer 2 - Crane]'))
 
 
 cwd = os.getcwd()
