@@ -24,18 +24,21 @@ from functions import *
 # TODO: all user input should be stored in a config, and read by functions
 #       modulize the code structure;
 
+# TODO: change the code to OOP style; each pipeline task should be a class
+# with fields set by constructor
+
+# TODO: add a progress bar for loading fits data based on time.txt
+
 # =============User input initiation================#
 # Choose observation modulize
 try:
-    obs_mode = int(raw_input('Please choose your observation mode \n
-                             [1 - Drifting 2 - Tracking]'))
+    obs_mode = int(raw_input('Please choose your observation mode \n [1 - Drifting 2 - Tracking]'))
 except:
     print('Selection out of options range! Please choose 1 or 2.')
 
 # TODO: depends on the mode chosen, entry to different obs mode
 
-instrument = int(raw_input('Please choose your instrument option \n
-                           [1 - Spectrometer 2 - Crane]'))
+instrument = int(raw_input('Please choose your instrument option \n [1 - Spectrometer 2 - Crane]'))
 
 
 cwd = os.getcwd()
@@ -47,8 +50,8 @@ obj_path = os.path.join(os.path.dirname(cwd), 'test_data', obj_name)
 for i in range(3):
     if not os.path.exists(obj_path):
         print('not path')
-        obj_name = str(raw_input('Path - %s - does not exist \n \
-        Please retype : ' % obj_path))
+        obj_name = str(raw_input('Path - %s - does not exist \n '
+                                 'Please retype : ' % obj_path))
         obj_path = os.path.join(os.path.dirname(cwd), 'test_data', obj_name)
 
 freq = raw_input("enter freqency range (separated by a comma):").split(',')
@@ -65,33 +68,27 @@ bsl_flag = True
 if raw_input('Baselining the result? [y/n] default as yes').lower() == 'n':
     bsl_flag = False
 
-# =============== first session on off plot======================#
+time_info = read_time_txt(obj_path)
+ses_on_data, ses_off_data = read_on_off_data_by_time(time_info, obj_path)
 
-first_on_data = read_data(os.path.join(obj_path, 'first-on'))
-first_off_data = read_data(os.path.join(obj_path, 'first-off'))
+freq = np.linspace(float(freq[0]), float(freq[1]), ses_on_data.shape[0])
 
-first_on = np.mean(bdp_correction(first_on_data, freq), axis=1)
-first_off = np.mean(bdp_correction(first_off_data, freq), axis=1)
-
-first_on_off = plot_each_session(first_on, first_off, freq, 'first', bsl_flag)
-
-# ===============second session on off plot======================#
-
-second_on_data = read_data(os.path.join(obj_path, 'second-on'))
-second_off_data = read_data(os.path.join(obj_path, 'second-off'))
-
-second_on = np.mean(bdp_correction(second_on_data, freq), axis=1)
-second_off = np.mean(bdp_correction(second_off_data, freq), axis=1)
-
-second_on_off = plot_each_session(second_on, second_off, freq, 'second',
-                                  bsl_flag)
+sessions_mean = np.zeros(ses_on_data.shape[0])
+try:
+    for i in range(ses_on_data.shape[2]):
+        print('ses_on_data[..., i]', ses_on_data[..., i].shape)
+        ses_on_data_bdp = np.mean(bdp_correction(ses_on_data[..., i], freq), axis=1)
+        ses_off_data_bdp = np.mean(bdp_correction(ses_off_data[..., i], freq), axis=1)
+        ses_on_off = plot_each_session(ses_on_data_bdp, ses_off_data_bdp, freq, obj_name, bsl_flag)
+        sessions_mean += ses_on_off
 
 
-# ============= plot ON-OFF data ====================#
-sessions_mean = (first_on_off + second_on_off)/2.
-
-# print(np.min(first_second_mean), np.argmin(first_second_mean))
-# print('signal at '+str(1354.3+np.argmin(first_second_mean)/1000.)+' MHz')
+except IndexError:  # only one session
+    print('ses_on_data[..., i]', ses_on_data[..., i].shape)
+    ses_on_data_bdp = np.mean(bdp_correction(ses_on_data[..., i], freq), axis=1)
+    ses_off_data_bdp = np.mean(bdp_correction(ses_off_data[..., i], freq), axis=1)
+    ses_on_off = plot_each_session(ses_on_data_bdp, ses_off_data_bdp, freq, obj_name, bsl_flag)
+    sessions_mean = ses_on_off
 
 plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag)
 
