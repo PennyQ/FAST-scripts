@@ -24,6 +24,8 @@ from functions import *
 # TODO: change the code to OOP style; each pipeline task should be a class
 # with fields set by constructor
 
+# TODO: add a progress bar for loading fits data based on time.txt
+
 # =============User input initiation================#
 cwd = os.getcwd()
 dirname = os.path.dirname(cwd)
@@ -34,8 +36,8 @@ obj_path = os.path.join(os.path.dirname(cwd), 'test_data', obj_name)
 for i in range(3):
     if not os.path.exists(obj_path):
         print('not path')
-        obj_name = str(raw_input('Path - %s - does not exist \n \
-        Please retype : ' % obj_path))
+        obj_name = str(raw_input('Path - %s - does not exist \n '
+                                 'Please retype : ' % obj_path))
         obj_path = os.path.join(os.path.dirname(cwd), 'test_data', obj_name)
 
 freq = raw_input("enter freqency range (separated by a comma):").split(',')
@@ -48,16 +50,33 @@ bsl_flag = True
 if raw_input('Baselining the result? [y/n] default as yes').lower() == 'n':
     bsl_flag = False
 
-time_info = read_time_txt()
-on_data, off_data = read_on_off_data_by_time(time_info)
+time_info = read_time_txt(obj_path)
+print('time_info', time_info)
+ses_on_data, ses_off_data = read_on_off_data_by_time(time_info, obj_path)
 
-freq = np.linspace(float(freq[0]), float(freq[1]), on_data.shape[0])
+freq = np.linspace(float(freq[0]), float(freq[1]), ses_on_data.shape[0])
 
-print('on_data', on_data, on_data.shape)
-print('off_data', off_data, off_data.shape)
-on_data = np.mean(bdp_correction(on_data, freq), axis=1)
-off_data = np.mean(bdp_correction(off_data, freq), axis=1)
-on_off = plot_each_session(on_data, off_data, freq, 'AGC12885', bsl_flag)
+print('ses_on_data', ses_on_data, ses_on_data.shape)
+print('ses_off_data', ses_off_data, ses_off_data.shape)
+
+sessions_mean = np.zeros(ses_on_data.shape[0])
+try:
+    for i in range(ses_on_data.shape[2]):
+        print('ses_on_data[..., i]', ses_on_data[..., i].shape)
+        ses_on_data_bdp = np.mean(bdp_correction(ses_on_data[..., i], freq), axis=1)
+        ses_off_data_bdp = np.mean(bdp_correction(ses_off_data[..., i], freq), axis=1)
+        ses_on_off = plot_each_session(ses_on_data_bdp, ses_off_data_bdp, freq, obj_name, bsl_flag)
+        sessions_mean += ses_on_off
+
+
+except IndexError:  # only one session
+    print('ses_on_data[..., i]', ses_on_data[..., i].shape)
+    ses_on_data_bdp = np.mean(bdp_correction(ses_on_data[..., i], freq), axis=1)
+    ses_off_data_bdp = np.mean(bdp_correction(ses_off_data[..., i], freq), axis=1)
+    ses_on_off = plot_each_session(ses_on_data_bdp, ses_off_data_bdp, freq, obj_name, bsl_flag)
+    sessions_mean = ses_on_off
+
+plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag)
 
 # # =============== first session on off plot======================#
 #
