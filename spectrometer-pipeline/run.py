@@ -51,13 +51,9 @@ if raw_input('Baselining the result? [y/n] default as yes').lower() == 'n':
     bsl_flag = False
 
 time_info = read_time_txt(obj_path)
-print('time_info', time_info)
 ses_on_data, ses_off_data = read_on_off_data_by_time(time_info, obj_path)
 
 freq = np.linspace(float(freq[0]), float(freq[1]), ses_on_data.shape[0])
-
-print('ses_on_data', ses_on_data, ses_on_data.shape)
-print('ses_off_data', ses_off_data, ses_off_data.shape)
 
 sessions_mean = np.zeros(ses_on_data.shape[0])
 try:

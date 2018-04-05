@@ -37,14 +37,11 @@ def bdp_correction(data, freq):
             bdp_curv = bdp_curv
         nor_bdp = spectra/bdp_curv
         nor_bdp = nor_bdp.reshape(nor_bdp.shape[0], 1)  # reshape for appending
-        # print('spectra/bdp_curv - new', nor_bdp.shape)
 
         if data_after_bdp is None:
             data_after_bdp = nor_bdp
         else:
             data_after_bdp = np.append(data_after_bdp, nor_bdp, axis=1)  # bdp correction
-            # print('data_after_bdp', data_after_bdp.shape)
-            # print('spectra/bdp_curv', (spectra/bdp_curv).shape)
     return data_after_bdp
 
 
