@@ -1,0 +1,34 @@
+# Sphinx & coverage
+build
+doc/_build
+doc/api
+*.coverage
+*htmlcov*
+
+# Packages/installer info
+doc/.eggs
+*.egg-info
+dist
+
+# Compiled files
+*.pyc
+
+# Output files
+not_for_commit/
+test_data/
+*/output/
+*.png
+
+# Other
+.pylintrc
+*.ropeproject
+*.__junk*
+*.orig
+*~
+.cache
+
+# Mac OSX
+.DS_Store
+
+# PyCharm
+.idea
