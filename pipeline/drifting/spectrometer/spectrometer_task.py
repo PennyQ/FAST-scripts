@@ -22,7 +22,6 @@ class SpectrometerTask:
         fits_path = os.path.join(os.path.dirname(os.getcwd()), 'test_data', obj_name, 'fits')
 
         time_info = read_time_txt(obj_path)
-        print('obj_path', obj_path)
         self.data = read_data(fits_path)
         self.ses_on_data, self.ses_off_data = read_on_off_data_by_time(time_info, obj_path)
 

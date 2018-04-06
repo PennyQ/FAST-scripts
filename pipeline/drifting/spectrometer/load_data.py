@@ -5,6 +5,28 @@ import numpy as np
 from datetime import datetime
 
 
+def progress_bar(val, val_max, val_min=0, prefix='', suffix='', bar_len=20):
+    """
+    Displays a progress bar when loading data.
+    :param val: current value
+    :param val_max: maximum value
+    :param val_min: minimum value
+    :param prefix: marker for the completed part
+    :param suffix: marker for the incomplete part
+    :param bar_len: total length of the progress bar
+    :return: a string representation of the progressbar
+    """
+    if val_max == 0:
+        return ''
+    else:
+        skipped_len = int(round(bar_len * val_min) / float(val_max))
+        filled_len = int(round(bar_len * (val - val_min) / float(val_max)))
+        # percents = round(100.0 * count / float(total), 1)
+        bar = '.' * skipped_len + '|' * filled_len + '.' * (bar_len - filled_len - skipped_len)
+        # return '[%s] %s%s %s\r' % (bar, percents, '%', suffix)
+        return '%s [%s] %s\r' % (prefix, bar, suffix)
+
+
 def read_data(path, data=None):
     try:
         for dir_entry in os.listdir(path):
@@ -58,7 +80,6 @@ def read_time_txt(obj_path):
         sys.exit()
 
 
-
 def read_on_off_data_by_time(time_info, obj_path):
     """
     Read fits data to different array based on session stage, fits data expected to be saved in
@@ -67,17 +88,42 @@ def read_on_off_data_by_time(time_info, obj_path):
     :param time_info: An array includes start and end time for each session.
     :param obj_path: Absolute path of the object directory.
     """
-
     on_start_time, on_end_time, off_start_time, off_end_time = time_info
 
     # read files from the data folder between start - end to an array
     ses = len(on_start_time)
-    print('on_start_time length', len(on_start_time))
     ses_on_data = None
     ses_off_data = None
+    fits_total_num = [0]*ses
+
+    print('Reading data by time for [%d] Sessions' % ses)
+
+    # Get total number of files to be loaded, for progress bar
+    for i in range(ses):
+        for record_dir_path in os.listdir(os.path.join(obj_path, 'fits')):
+
+            each_record_path = os.path.join(obj_path, 'fits', record_dir_path)
+
+            if os.path.isfile(each_record_path) and '.fit' in os.path.basename(each_record_path):
+                # unit of dB tranfering a into linear space
+                f_time = os.path.basename(each_record_path).split('T')[1]  # time in file name
+                f_time = f_time.split('.')[0]
+
+                # format time to python datetime format
+                f_time = datetime.strptime(f_time[0:4], '%H%M')
+                if on_start_time[ses - 1] <= f_time <= on_end_time[ses - 1]:
+                    fits_total_num[i] += 1
+
     for i in range(ses):
         on_data = None  # shape of (freq_index, record_index, session_idx)
         off_data = None
+
+        toolbar_width = 100
+        # setup toolbar
+        sys.stdout.write("[%s]" % (" " * toolbar_width))
+        sys.stdout.flush()
+        sys.stdout.write("\b" * (toolbar_width + 1))  # return to start of line, after '['
+
         for record_dir_path in os.listdir(os.path.join(obj_path, 'fits')):
 
             each_record_path = os.path.join(obj_path, 'fits', record_dir_path)
@@ -97,8 +143,12 @@ def read_on_off_data_by_time(time_info, obj_path):
                         on_data = data_linear
                     else:
                         on_data = np.append(on_data, data_linear, axis=1)
-                        # TODO: progress bar can use the loop here
-                        # print('on_data shape in for loop', on_data.shape)
+
+                        progressbar = progress_bar(val=on_data.shape[1],
+                                                   val_max=fits_total_num[i],
+                                                   bar_len=30)
+                        sys.stdout.write('Loading session %d : %s' % (i+1, progressbar))
+                        sys.stdout.flush()
 
                 if off_start_time[ses - 1] <= f_time <= off_end_time[ses - 1]:
                     if off_data is None:
@@ -108,10 +158,8 @@ def read_on_off_data_by_time(time_info, obj_path):
                 hdulist.close()
 
         if ses_on_data is None:
-            print('if ses on data is None', on_data.shape)
             ses_on_data = on_data
         else:
-            print('else, ses_on_dat, on_data shape', ses_on_data.shape, on_data.shape)
             ses_on_data = np.stack((ses_on_data, on_data), axis=-1)
 
         if ses_off_data is None:
