@@ -40,7 +40,6 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     plt.show()
 
     print('Plot and save ' + mode+' on minus off')
-    return on_off
 
 
 # plot bdp corrected, baselined, and smoothed data
