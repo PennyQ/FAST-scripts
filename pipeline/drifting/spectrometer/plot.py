@@ -4,22 +4,25 @@ from scipy import ndimage
 from level1 import baselined
 
 
-# # plot bdp corrected, baselined for each session
 def plot_each_session(on, off, freq, mode, bsl_flag=True):
     """
-    :return: ON-OFF of each session, in numpy.array type.
+    Plot bdp corrected, baseline result for each session.
+
+    :param on: On data of each session.
+    :param off: Off data of each session.
+    :param freq: Frequency range.
+    :param mode: Which session mode.
+    :param bsl_flag: Flag to mark baseline or not.
+    :return:
     """
     # initiate the plot
     f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
 
-    # read between 2100-2110 as first on
-
-    ax1.plot(freq, on)  # label='first on')
+    ax1.plot(freq, on)
     ax1.set_title(mode+' on')
 
     # ax1.legend(loc="upper right")
 
-    # read between 2120-2130 as first off
     ax2.plot(freq, off)
     ax2.set_title(mode+' off')
 
@@ -39,11 +42,20 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     plt.savefig(mode+'_ON-OFF')
     plt.show()
 
-    print('Plot and save ' + mode+' on minus off')
+    print('Plot and save {} ON minus OFF'.format(mode))
 
 
-# plot bdp corrected, baselined, and smoothed data
 def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True, polyfit_deg=1):
+    """
+    Plot bdp corrected, baselined, and smoothed data
+
+    :param freq:
+    :param sessions_mean:
+    :param smooth_box:
+    :param bsl_flag:
+    :param polyfit_deg:
+    :return:
+    """
     if bsl_flag:
         bsl_curv, sessions_mean_bsl = baselined(freq, sessions_mean, polyfit_deg)
     # smooth function is from IDL http://www.harrisgeospatial.com/docs/SMOOTH.html
