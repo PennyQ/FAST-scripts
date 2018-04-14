@@ -28,7 +28,7 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     on_off = on - off
     if bsl_flag:
         bsl_curv, on_off_bsl = baselined(freq, on_off)
-        ax3.set_title(mode + 'ON-OFF before baselined')
+        ax3.set_title(mode + ' ON-OFF before baselined')
         ax4.set_title(mode+' ON-OFF after baselined')
     ax3.plot(freq, on_off)
     ax3.plot(freq, bsl_curv, alpha=0.6)
@@ -49,6 +49,7 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True, polyfit_d
     # smooth function is from IDL http://www.harrisgeospatial.com/docs/SMOOTH.html
     sessions_mean_bsl = ndimage.filters.uniform_filter(sessions_mean_bsl,
                                                        size=int(smooth_box))
+
     # initiate the plot
     f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     ax1.plot(freq, sessions_mean)
