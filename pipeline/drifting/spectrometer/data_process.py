@@ -4,7 +4,7 @@ from load_data import SpectrometerData
 from plot import *
 
 
-class DataProcessTask:
+class SpectrometerDataProcessTask:
 
     """
     This class is the frame to use different modules and process data.

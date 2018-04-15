@@ -33,7 +33,9 @@ class UserInput:
                                               'Please retype : ' % obj_path))
                 obj_path = os.path.join(os.path.dirname(cwd), 'test_data', self.obj_name)
 
-        self.freq = raw_input("enter freqency range (separated by a comma):").split(',')
+        # TODO: later add reading frequency from the b51_get_spec_HI_RF.m
+        if self.instrument == 1:
+            self.freq = raw_input("enter freqency range (separated by a comma):").split(',')
 
         # tick_num = raw_input("Please enter tick number [1001]:") or 1001
 

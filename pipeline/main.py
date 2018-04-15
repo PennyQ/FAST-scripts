@@ -1,6 +1,7 @@
 from astropy.io import fits
 import sys
-from drifting.spectrometer.data_process import DataProcessTask
+from drifting.spectrometer.data_process import SpectrometerDataProcessTask
+from drifting.crane.data_process import CraneDataProcessTask
 from user_input import UserInput
 
 
@@ -23,14 +24,24 @@ def start_pipeline():
     :return:
     """
     user_input = UserInput()
+
     if user_input.obs_mode == 1 and user_input.instrument == 1:
-        spectrometer_task = DataProcessTask(obj_name=user_input.obj_name,
-                                            freq=user_input.freq,
-                                            bsl_flag=user_input.bsl_flag,
-                                            smooth_box=user_input.smooth_box)
+        spectrometer_task = SpectrometerDataProcessTask(obj_name=user_input.obj_name,
+                                                        freq=user_input.freq,
+                                                        bsl_flag=user_input.bsl_flag,
+                                                        smooth_box=user_input.smooth_box)
 
         spectrometer_task.level1_process()
         spectrometer_task.plot_result()
+
+    if user_input.obs_mode == 1 and user_input.instrument == 2:
+        crane_task = CraneDataProcessTask(obj_name=user_input.obj_name,
+                                          bsl_flag=user_input.bsl_flag,
+                                          smooth_box=user_input.smooth_box)
+
+        crane_task.level1_process()
+        crane_task.plot_result()
+
     else:
         print('Mode not supported yet, pipeline quit!')
 
