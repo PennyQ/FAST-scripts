@@ -63,19 +63,22 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True, polyfit_d
                                                        size=int(smooth_box))
 
     # initiate the plot
-    f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    f, (ax1, ax2, ax3) = plt.subplots(2, 1, sharex=True)
     ax1.plot(freq, sessions_mean)
     ax1.plot(freq, bsl_curv, alpha=0.6)
     ax1.set_title('ON-OFF (Before Smoothed and Baselined)')
 
-    ax2.plot(freq, sessions_mean_bsl)
-    ax2.annotate('Signal at '+str(freq[0]+np.argmin(sessions_mean)/1000.*6)
+    ax2.plot(freq, bsl_curv - sessions_mean, linewidth=1.0, color='grey')
+    ax2.set_title('Sample Mask')
+
+    ax3.plot(freq, sessions_mean_bsl)
+    ax3.annotate('Signal at '+str(freq[0]+np.argmin(sessions_mean)/1000.*6)
                  + ' MHz',
                  xy=(freq[0], 1e-12),
                  xytext=(freq[1], 1e-12),
                  arrowprops=dict(arrowstyle="->"))
 
-    ax2.set_title('ON-OFF (Smoothed and Baselined)')
+    ax3.set_title('ON-OFF (Smoothed and Baselined)')
     f.subplots_adjust(hspace=1)
     plt.savefig('bdp-smoothed-bsl', dpi=200)
     plt.show()
