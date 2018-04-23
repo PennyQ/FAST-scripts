@@ -17,6 +17,9 @@ from user_input import UserInput
 
 # TODO: fix the annotation of plot
 
+# TODO: poly fit = 2 looks wrong
+
+# TODO: try poly fit with PGC 070403  2017/11/03
 
 def start_pipeline():
     """
@@ -24,26 +27,33 @@ def start_pipeline():
     :return:
     """
     user_input = UserInput()
+    poly_fit = 1  # default as 1
 
-    if user_input.obs_mode == 1 and user_input.instrument == 1:
-        spectrometer_task = SpectrometerDataProcessTask(obj_name=user_input.obj_name,
-                                                        freq=user_input.freq,
-                                                        bsl_flag=user_input.bsl_flag,
-                                                        smooth_box=user_input.smooth_box)
+    while(True):
+        if user_input.obs_mode == 1 and user_input.instrument == 1:
+            spectrometer_task = SpectrometerDataProcessTask(obj_name=user_input.obj_name,
+                                                            freq=user_input.freq,
+                                                            bsl_flag=user_input.bsl_flag,
+                                                            smooth_box=user_input.smooth_box,
+                                                            polyfit_deg=poly_fit)
 
-        spectrometer_task.level1_process()
-        spectrometer_task.plot_result()
+            spectrometer_task.level1_process()
+            spectrometer_task.plot_result()
 
-    if user_input.obs_mode == 1 and user_input.instrument == 2:
-        crane_task = CraneDataProcessTask(obj_name=user_input.obj_name,
-                                          bsl_flag=user_input.bsl_flag,
-                                          smooth_box=user_input.smooth_box)
+        if user_input.obs_mode == 1 and user_input.instrument == 2:
+            crane_task = CraneDataProcessTask(obj_name=user_input.obj_name,
+                                              bsl_flag=user_input.bsl_flag,
+                                              smooth_box=user_input.smooth_box,
+                                              polyfit_deg=poly_fit)
 
-        crane_task.level1_process()
-        crane_task.plot_result()
+            crane_task.level1_process()
+            crane_task.plot_result()
 
-    else:
-        print('Mode not supported yet, pipeline quit!')
+        poly_fit = user_input.prompt_poly_fit()
+        if poly_fit == 0:  # means poly fit degree accepted
+            break
+
+    print('Pipeline Quit!')
 
 
 if __name__ == "__main__":

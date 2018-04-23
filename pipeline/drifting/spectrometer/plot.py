@@ -4,7 +4,7 @@ from scipy import ndimage
 from level1 import baselined
 
 
-def plot_each_session(on, off, freq, mode, bsl_flag=True):
+def plot_each_session(on, off, freq, mode, bsl_flag=True, polyfit_deg=1):
     """
     Plot bdp corrected, baseline result for each session.
 
@@ -30,7 +30,7 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True):
     ax4.set_title(mode+'ON-OFF')
     on_off = on - off
     if bsl_flag:
-        bsl_curv, on_off_bsl = baselined(freq, on_off)
+        bsl_curv, on_off_bsl = baselined(freq, on_off, polyfit_deg)
         ax3.set_title(mode + ' ON-OFF before baselined')
         ax4.set_title(mode+' ON-OFF after baselined')
     ax3.plot(freq, on_off)
@@ -63,7 +63,7 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True, polyfit_d
                                                        size=int(smooth_box))
 
     # initiate the plot
-    f, (ax1, ax2, ax3) = plt.subplots(2, 1, sharex=True)
+    f, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True)
     ax1.plot(freq, sessions_mean)
     ax1.plot(freq, bsl_curv, alpha=0.6)
     ax1.set_title('ON-OFF (Before Smoothed and Baselined)')

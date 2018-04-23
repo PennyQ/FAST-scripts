@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def bdp_correction(data, freq):
+def bdp_correction(data, freq, polyfit_deg=1):
     """
     Bandpass correction for all records of one observation
     :rtype: (numpy.array) - records data after bandpass
@@ -19,7 +19,7 @@ def bdp_correction(data, freq):
             data_sel = spectra[good_data_index]
 
             # bdp curve fitting
-            polyfit = np.poly1d(np.polyfit(freq_sel, data_sel, 1))  # x, y, degree
+            polyfit = np.poly1d(np.polyfit(freq_sel, data_sel, polyfit_deg))  # x, y, degree
             bdp_curv = polyfit(freq)
 
             # calculate residual and corresponding rms

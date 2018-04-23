@@ -12,7 +12,7 @@ class CraneDataProcessTask:
     Detailed functions (such as loading data, plot and processing) are not included in this class.
     """
 
-    def __init__(self, obj_name, bsl_flag, smooth_box):
+    def __init__(self, obj_name, bsl_flag, smooth_box, polyfit_deg):
         """
         Parameters and methods needed for data processing.
 
@@ -23,6 +23,7 @@ class CraneDataProcessTask:
         """
         self.bsl_flag = bsl_flag
         self.smooth_box = smooth_box
+        self.polyfit_deg = polyfit_deg
 
         self.obj_name = obj_name
         obj_path = os.path.join(os.path.dirname(os.getcwd()), 'test_data', obj_name)
@@ -48,11 +49,9 @@ class CraneDataProcessTask:
         Level I processing for loaded data
         :return ON, OFF and mean(ON-OFF) data after bandpass for each record
         """
-        ses_on_data_bdp = None
-        ses_off_data_bdp = None
 
-        each_ses_on_bdp = bdp_correction(self.ses_on_data, self.freq)
-        each_ses_off_bdp = bdp_correction(self.ses_off_data, self.freq)
+        each_ses_on_bdp = bdp_correction(self.ses_on_data, self.freq, self.polyfit_deg)
+        each_ses_off_bdp = bdp_correction(self.ses_off_data, self.freq, self.polyfit_deg)
 
         ses_on_data_bdp = np.mean(each_ses_on_bdp, axis=1)
 
@@ -69,15 +68,7 @@ class CraneDataProcessTask:
         """
         Level processing for loaded data
         """
-        # if self.get_session_num() == 1:
-        #     plot_each_session(self.ses_on_data_bdp, self.ses_off_data_bdp, self.freq, self.obj_name, self.bsl_flag)
-        # else:
-        #     for i in range(self.get_session_num()):
-        #         plot_each_session(self.ses_on_data_bdp[..., i], self.ses_off_data_bdp[..., i],
-        #                           self.freq, self.obj_name, self.bsl_flag)
-        plot_mean_sessions(self.freq, self.sessions_mean, self.smooth_box, self.bsl_flag)
-
-        print('Pipeline quit!')
+        plot_mean_sessions(self.freq, self.sessions_mean, self.smooth_box, self.bsl_flag, self.polyfit_deg)
 
     def get_session_num(self):
         """

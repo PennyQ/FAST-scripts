@@ -11,7 +11,7 @@ class SpectrometerDataProcessTask:
     Detailed functions (such as loading data, plot and processing) are not included in this class.
     """
 
-    def __init__(self, obj_name, freq, bsl_flag, smooth_box):
+    def __init__(self, obj_name, freq, bsl_flag, smooth_box, polyfit_deg):
         """
         Parameters and methods needed for data processing.
 
@@ -22,6 +22,7 @@ class SpectrometerDataProcessTask:
         """
         self.bsl_flag = bsl_flag
         self.smooth_box = smooth_box
+        self.polyfit_deg = polyfit_deg
 
         self.obj_name = obj_name
         obj_path = os.path.join(os.path.dirname(os.getcwd()), 'test_data', obj_name)
@@ -53,8 +54,8 @@ class SpectrometerDataProcessTask:
 
         # For each session, load ON and OFF data
         for i in range(self.get_session_num()):
-            each_ses_on_bdp = bdp_correction(self.ses_on_data[..., i], self.freq)
-            each_ses_off_bdp = bdp_correction(self.ses_off_data[..., i], self.freq)
+            each_ses_on_bdp = bdp_correction(self.ses_on_data[..., i], self.freq, self.polyfit_deg)
+            each_ses_off_bdp = bdp_correction(self.ses_off_data[..., i], self.freq, self.polyfit_deg)
 
             if ses_on_data_bdp is None:
                 ses_on_data_bdp = np.mean(each_ses_on_bdp, axis=1)
@@ -88,14 +89,13 @@ class SpectrometerDataProcessTask:
         Level processing for loaded data
         """
         if self.get_session_num() == 1:
-            plot_each_session(self.ses_on_data_bdp, self.ses_off_data_bdp, self.freq, self.obj_name, self.bsl_flag)
+            plot_each_session(self.ses_on_data_bdp, self.ses_off_data_bdp, self.freq, self.obj_name,
+                              self.bsl_flag, self.polyfit_deg)
         else:
             for i in range(self.get_session_num()):
                 plot_each_session(self.ses_on_data_bdp[..., i], self.ses_off_data_bdp[..., i],
-                                  self.freq, self.obj_name, self.bsl_flag)
-        plot_mean_sessions(self.freq, self.sessions_mean, self.smooth_box, self.bsl_flag)
-
-        print('Pipeline quit!')
+                                  self.freq, self.obj_name, self.bsl_flag, self.polyfit_deg)
+        plot_mean_sessions(self.freq, self.sessions_mean, self.smooth_box, self.bsl_flag, self.polyfit_deg)
 
     def get_session_num(self):
         """
