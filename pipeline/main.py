@@ -46,6 +46,7 @@ def start_pipeline():
                                               smooth_box=user_input.smooth_box,
                                               polyfit_deg=poly_fit)
 
+            crane_task.subtract_bandpass()
             crane_task.level1_process()
             crane_task.plot_result()
 
@@ -53,7 +54,7 @@ def start_pipeline():
         if poly_fit == 0:  # means poly fit degree accepted
             break
 
-    print('Pipeline Quit!')
+    print('Pipeline finished successfully!')
 
 
 if __name__ == "__main__":

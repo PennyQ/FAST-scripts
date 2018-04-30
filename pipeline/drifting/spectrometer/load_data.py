@@ -64,13 +64,11 @@ class SpectrometerData:
                 t_array = []
                 for each_line in open(os.path.join(obj_path, 'time.txt')).read().decode('utf-8').split():
                     if each_line[0].isdigit():
-                        print(each_line.encode('utf-8'))
                         t_array.append(each_line.encode('utf-8'))
                 on_start_time = []  # for each session
                 on_end_time = []
                 off_start_time = []
                 off_end_time = []
-                print('t_array', t_array)
                 for i in range(len(t_array)):
                     if i % 4 == 0:
                         on_start_time.append(datetime.strptime(t_array[i], '%H:%M'))
@@ -80,10 +78,7 @@ class SpectrometerData:
                         off_start_time.append(datetime.strptime(t_array[i], '%H:%M'))
                     if i % 4 == 3:
                         off_end_time.append(datetime.strptime(t_array[i].replace('-', ''), '%H:%M'))
-                print('on_start_time', on_start_time, len(on_start_time))
-                print('on_end_time', on_end_time)
-                print('off_start_time', off_start_time)
-                print('off_end_time', off_end_time)
+
                 return on_start_time, on_end_time, off_start_time, off_end_time
                 # return on_start_time, on_end_time, off_start_time, off_end_time
         except OSError:

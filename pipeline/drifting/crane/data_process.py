@@ -36,7 +36,6 @@ class CraneDataProcessTask:
 
         self.n_channel = self.ses_on_data.shape
 
-        # self.freq = np.linspace(float(freq[0]), float(freq[1]), self.n_channel)
         self.freq = crane_data.freq
 
         self.ses_on_data_bdp = None
@@ -63,6 +62,22 @@ class CraneDataProcessTask:
         self.ses_on_data_bdp = ses_on_data_bdp
         self.ses_off_data_bdp = ses_off_data_bdp
         self.sessions_mean = sessions_mean
+
+    def subtract_bandpass(self):
+        """
+        Subtract a part of spectra on left and right to remove instrument effect, before baseline.
+        The percentage is set to 18% for testing stage, will adjust and fix in the future.
+        :return:
+        """
+        print('self.freq.shape',len(self.freq))
+        start_i = int(len(self.freq) * 0.18)
+        end_i = int(len(self.freq) * 0.82)
+        print('start_i =', start_i)
+        print('end_i =', end_i)
+        plot_substract(self.freq, self.ses_on_data-self.ses_off_data, self.freq[start_i], self.freq[end_i])
+        self.freq = self.freq[start_i:end_i]
+        self.ses_on_data = self.ses_on_data[start_i:end_i]
+        self.ses_off_data = self.ses_off_data[start_i:end_i]
 
     def plot_result(self):
         """

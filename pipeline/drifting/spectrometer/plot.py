@@ -16,7 +16,7 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True, polyfit_deg=1):
     :return:
     """
     # initiate the plot
-    f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
+    f, (ax1, ax2, ax3, ax4) = plt.subplots(2, 2, sharex=True)
 
     ax1.plot(freq, on)
     ax1.set_title(mode+' on')
@@ -68,7 +68,7 @@ def plot_mean_sessions(freq, sessions_mean, smooth_box, bsl_flag=True, polyfit_d
     ax1.plot(freq, bsl_curv, alpha=0.6)
     ax1.set_title('ON-OFF (Before Smoothed and Baselined)')
 
-    ax2.plot(freq, bsl_curv - sessions_mean, linewidth=1.0, color='grey')
+    ax2.plot(freq, sessions_mean_bsl - sessions_mean, linewidth=1.0, color='grey')
     ax2.set_title('Sample Mask')
 
     ax3.plot(freq, sessions_mean_bsl)
