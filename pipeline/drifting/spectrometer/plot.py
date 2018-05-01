@@ -16,7 +16,7 @@ def plot_each_session(on, off, freq, mode, bsl_flag=True, polyfit_deg=1):
     :return:
     """
     # initiate the plot
-    f, (ax1, ax2, ax3, ax4) = plt.subplots(2, 2, sharex=True)
+    f, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, sharex=True)
 
     ax1.plot(freq, on)
     ax1.set_title(mode+' on')

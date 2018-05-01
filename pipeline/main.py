@@ -1,4 +1,3 @@
-from astropy.io import fits
 import sys
 from drifting.spectrometer.data_process import SpectrometerDataProcessTask
 from drifting.crane.data_process import CraneDataProcessTask
@@ -20,6 +19,8 @@ from user_input import UserInput
 # TODO: poly fit = 2 looks wrong
 
 # TODO: try poly fit with PGC 070403  2017/11/03
+
+# TODO: put output results into output folder and clean the dir
 
 def start_pipeline():
     """

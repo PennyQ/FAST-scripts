@@ -17,9 +17,9 @@ class CraneData:
     @staticmethod
     def get_freq(obj_path):
         try:
-            for each_rec in os.listdir(os.path.join(obj_path, '2018-01-28_15-03-24_PegII-UDG23_on_tracking')):
+            for each_rec in os.listdir(os.path.join(obj_path, os.listdir(obj_path)[0])):
                 # read on data into an array and return
-                each_rec_path = os.path.join(obj_path, '2018-01-28_15-03-24_PegII-UDG23_on_tracking', each_rec)
+                each_rec_path = os.path.join(obj_path, os.listdir(obj_path)[0], each_rec)
                 if os.path.isfile(each_rec_path) and '.fit' in os.path.basename(each_rec_path):
                     hdu_list = fits.open(each_rec_path)
                     hdu_data = hdu_list[1].data
