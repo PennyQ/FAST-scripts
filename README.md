@@ -7,7 +7,7 @@ INSTRUCTIONS
 ------------
 ### Prepare data
 
-Be sure your data is put in the test_data folder (create one if not existed), the same dir level as pipeline folder. 
+Be sure your data is put in the `test_data` folder, with the format downloaded from remote server.
 
 ### Download the code and install
 
@@ -26,6 +26,9 @@ Select local mode, follow the instructions on terminal to set object directory
 
 **If select remote mode, edit the config_properties.py properly**
 
+### Output
+
+The plot of results should pop up during the interaction, also, figures are saved in the `pipeline/output` folder.
 
 Status
 ------------
