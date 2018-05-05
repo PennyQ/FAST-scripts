@@ -20,6 +20,7 @@ class SpectrometerData:
     def progress_bar(val, val_max, val_min=0, prefix='', suffix='', bar_len=20):
         """
         Displays a progress bar when loading data.
+
         :param val: current value
         :param val_max: maximum value
         :param val_min: minimum value

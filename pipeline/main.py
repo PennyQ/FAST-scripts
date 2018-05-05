@@ -59,4 +59,4 @@ def start_pipeline():
 
 
 if __name__ == "__main__":
-    sys.exit(start_pipeline())
+    start_pipeline()

@@ -1,6 +1,6 @@
 import os
 import subprocess
-import remote_properties
+import config_properties
 
 
 class UserInput:
@@ -32,7 +32,7 @@ class UserInput:
             self.obj_name = raw_input('Please type folder name: ')
             obj_path = os.path.join(os.path.dirname(cwd), 'test_data', self.obj_name)
             if not os.path.exists(obj_path):
-                print("Not valid object name, check remote_properties.py!")
+                print("Not valid object name, check config_properties.py!")
                 exit(0)
             # Get spectrometer data freq from remote .m file, set in properties
             if self.instrument == 1:
@@ -52,19 +52,19 @@ class UserInput:
             # TODO: change this part to fully get data from remote
             # Get data object name from properties setting and check whether the file exists locally
             if self.instrument == 1:
-                self.obj_name = remote_properties.SPEC_DATA_OBJECT
+                self.obj_name = config_properties.SPEC_DATA_OBJECT
             if self.instrument == 2:
-                self.obj_name = remote_properties.CRANE_DATA_OBJECT
+                self.obj_name = config_properties.CRANE_DATA_OBJECT
 
             obj_path = os.path.join(os.path.dirname(cwd), 'test_data', self.obj_name)
             if not os.path.exists(obj_path):
-                print("Not valid object name, check remote_properties.py!")
+                print("Not valid object name, check config_properties.py!")
                 exit(0)
 
             # Get spectrometer data freq from remote .m file, set in properties
             if self.instrument == 1:
                 ssh = subprocess.Popen(
-                    ['ssh', '-p 33322', remote_properties.REMOTE, 'cat', remote_properties.FREQ_FILE],
+                    ['ssh', '-p 33322', config_properties.REMOTE, 'cat', config_properties.FREQ_FILE],
                     stdout=subprocess.PIPE)
                 for line in ssh.stdout:
                     if 'fa =' in line:

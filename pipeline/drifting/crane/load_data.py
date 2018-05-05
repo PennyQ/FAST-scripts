@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 
@@ -14,12 +15,19 @@ class CraneData:
         self.ses_on_data, self.ses_off_data = self.read_on_off_data(obj_path)
         self.freq = self.get_freq(obj_path)
 
+    # TODO: replace os.listdir(obj_path)[1] to be any file in the unhidden dir
+    @staticmethod
+    def listdir_nohidden(path):
+        for f in os.listdir(path):
+            if not f.startswith('.'):
+                yield f
+
     @staticmethod
     def get_freq(obj_path):
         try:
-            for each_rec in os.listdir(os.path.join(obj_path, os.listdir(obj_path)[0])):
+            for each_rec in os.listdir(os.path.join(obj_path, os.listdir(obj_path)[1])):
                 # read on data into an array and return
-                each_rec_path = os.path.join(obj_path, os.listdir(obj_path)[0], each_rec)
+                each_rec_path = os.path.join(obj_path, os.listdir(obj_path)[1], each_rec)
                 if os.path.isfile(each_rec_path) and '.fit' in os.path.basename(each_rec_path):
                     hdu_list = fits.open(each_rec_path)
                     hdu_data = hdu_list[1].data
@@ -36,7 +44,7 @@ class CraneData:
                     break
 
         except OSError:
-            print("Invalid folder input, please check the folder existance.")
+            print("Invalid folder input, please check the folder existance. Error msg is ", OSError.message)
             sys.exit()
         return freq1
 
@@ -51,10 +59,9 @@ class CraneData:
         off_data_mean = None
         n_on_rec = 0.0
         n_off_rec = 0.0
+        print('obj_path is', obj_path)
         try:
             for each_session in os.listdir(obj_path):
-                print('each_session is'+each_session)
-
                 if 'on_tracking' in each_session:
                     for each_rec in os.listdir(os.path.join(obj_path, each_session)):  #'2018-01-28_15-03-24_PegII-UDG23_on_tracking')):
                         # read on data into an array and return

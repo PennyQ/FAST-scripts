@@ -1,5 +1,4 @@
 import os
-import numpy as np
 from level1 import *
 from load_data import CraneData
 from plot import *
@@ -16,10 +15,10 @@ class CraneDataProcessTask:
         """
         Parameters and methods needed for data processing.
 
-        :param obj_name:
-        :param freq:
-        :param bsl_flag:
-        :param smooth_box:
+        :param obj_name: type string, the object name.
+        :param bsl_flag: type boolean, the flag for doing baseline or not.
+        :param smooth_box: type int, the width of smooth box.
+        :param polyfit_deg: type int, poly fitting degree.
         """
         self.bsl_flag = bsl_flag
         self.smooth_box = smooth_box
@@ -27,7 +26,6 @@ class CraneDataProcessTask:
 
         self.obj_name = obj_name
         obj_path = os.path.join(os.path.dirname(os.getcwd()), 'test_data', obj_name)
-        # fits_path = os.path.join(os.path.dirname(os.getcwd()), 'test_data', obj_name, 'fits')
 
         crane_data = CraneData(obj_path)
         # self.data = crane_data.data
@@ -69,11 +67,8 @@ class CraneDataProcessTask:
         The percentage is set to 18% for testing stage, will adjust and fix in the future.
         :return:
         """
-        print('self.freq.shape',len(self.freq))
         start_i = int(len(self.freq) * 0.18)
         end_i = int(len(self.freq) * 0.82)
-        print('start_i =', start_i)
-        print('end_i =', end_i)
         plot_substract(self.freq, self.ses_on_data-self.ses_off_data, self.freq[start_i], self.freq[end_i])
         self.freq = self.freq[start_i:end_i]
         self.ses_on_data = self.ses_on_data[start_i:end_i]
