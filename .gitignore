@@ -15,8 +15,8 @@ dist
 
 # Output files
 not_for_commit/
-test_data/
-*/output/
+#test_data/
+#*/output/
 *.png
 
 # Other
